@@ -16,8 +16,7 @@
 //!
 //! - `serde` (default): enables JSON serialization and deserialization support
 //!   via the [`serde`](https://serde.rs) crate.
-//! - `fzn`: enables parsing of the original `.fzn` text format via
-//!   [`winnow`](https://crates.io/crates/winnow).
+//! - `fzn`: enables parsing of the original `.fzn` text format via [`winnow`](https://crates.io/crates/winnow).
 //!
 //! # Getting Started
 //!
@@ -113,9 +112,6 @@
 //! (after compilation) invoke the registered executable with a path of a
 //! FlatZinc JSON file, and potentially any registered standard and extra flags
 //! (e.g., `../../../bin/fzn-my-solver model.fzn.json`).
-
-#![warn(missing_docs)]
-#![warn(variant_size_differences)]
 
 #[cfg(feature = "fzn")]
 mod fzn;
@@ -220,8 +216,8 @@ pub struct Array<Identifier = String> {
 		feature = "serde",
 		serde(default, skip_serializing_if = "serde::is_false")
 	)]
-	/// This field is set to `true` when there is a constraint that has been marked as
-	/// defining this array.
+	/// This field is set to `true` when there is a constraint that has been
+	/// marked as defining this array.
 	pub defined: bool,
 	#[cfg_attr(
 		feature = "serde",
@@ -296,10 +292,12 @@ pub struct FlatZinc<
 		)
 	)]
 	pub arrays: ArrayMap,
-	/// A list of (solver-specific) constraints, that must be satisfied in a solution.
+	/// A list of (solver-specific) constraints, that must be satisfied in a
+	/// solution.
 	#[cfg_attr(feature = "serde", serde(default))]
 	pub constraints: Vec<Constraint<Identifier>>,
-	/// A list of all identifiers for which the solver must produce output for each solution
+	/// A list of all identifiers for which the solver must produce output for
+	/// each solution
 	#[cfg_attr(feature = "serde", serde(default))]
 	pub output: Vec<Identifier>,
 	/// A specification of the goal of solving the FlatZinc instance.
@@ -377,8 +375,8 @@ pub struct SolveObjective<Identifier = String> {
 	pub method: Method<Identifier>,
 	/// A list of annotations from the solve statement in the MiniZinc model
 	///
-	/// Note that this includes the search annotations if they are present in the
-	/// model.
+	/// Note that this includes the search annotations if they are present in
+	/// the model.
 	pub ann: Vec<Annotation<Identifier>>,
 }
 
@@ -398,19 +396,20 @@ pub enum Type {
 /// The definition of a decision variable
 #[derive(Clone, PartialEq, Debug)]
 pub struct Variable<Identifier = String> {
-	/// The type of the decision variable, and set of potential values  from which
-	/// the decision variable must take its value in a solution, i.e. its domain.
+	/// The type of the decision variable, and set of potential values  from
+	/// which the decision variable must take its value in a solution, i.e. its
+	/// domain.
 	///
-	/// If domain has the value `None`, then all values of the decision variable's
-	/// `Type` are allowed in a solution.
+	/// If domain has the value `None`, then all values of the decision
+	/// variable's `Type` are allowed in a solution.
 	pub ty: Type,
-	/// The “right hand side” of the variable, i.e., its value or alias to another
-	/// variable
+	/// The “right hand side” of the variable, i.e., its value or alias to
+	/// another variable
 	pub value: Option<Literal<Identifier>>,
 	/// A list of annotations
 	pub ann: Vec<Annotation<Identifier>>,
-	/// This field is set to `true` when there is a constraint that has been marked as
-	/// defining this variable.
+	/// This field is set to `true` when there is a constraint that has been
+	/// marked as defining this variable.
 	pub defined: bool,
 	/// This field is set to `true` when the variable has been introduced by the
 	/// MiniZinc compiler, rather than being explicitly defined at the top-level

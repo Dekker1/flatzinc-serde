@@ -11,9 +11,10 @@ homepage = "https://www.minizinc.org/"
 repository = "https://github.com/MiniZinc/flatzinc-serde"
 license = "MPL-2.0"
 keywords = ["minizinc", "flatzinc", "serde", "optimization", "serialization"]
+categories = ["parsing", "science"]
 exclude = ["/corpus"]
 
-edition = "2021"
+edition = "2024"
 
 [features]
 default = ["serde"]
