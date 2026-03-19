@@ -15,8 +15,8 @@ use annotations::*;
 pub use error::FznParseError;
 use primitives::*;
 use winnow::{
-	combinator::{alt, delimited, opt, preceded, separated, separated_pair},
 	Parser, Result, Stateful,
+	combinator::{alt, delimited, opt, preceded, separated, separated_pair},
 };
 
 use crate::{
@@ -35,18 +35,28 @@ enum Declaration<Identifier> {
 }
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+/// Represents the current parsing phase.
 enum ParsePhase {
+	/// Accepting all items, possibly already parsed a predicate declaration.
 	Predicates,
+	/// Parsed a array/variable declaration item, no longer accepting predicate
+	/// declarations.
 	Declarations,
+	/// Parsed a constraint item, no longer accepting predicate or
+	/// array/variable declarations.
 	Constraints,
+	/// Parsed a solve item, no longer accepting any items.
 	Solve,
 }
 
 #[derive(Debug, PartialEq)]
+/// State used during parsing.
 struct ParseState<'s, Identifier> {
+	/// Collection of parsed parameters to be replaced in constraint arguments.
 	parameters: &'s mut HashMap<String, Literal<Identifier>>,
 }
 
+/// Type used for the parser input and state.
 type Stream<'source, 'state, Identifier> = Stateful<&'source str, ParseState<'state, Identifier>>;
 
 /// Parses a constraint argument.
@@ -127,8 +137,8 @@ where
 
 /// Parses the domain in a variable declaration.
 ///
-/// Has no direct analogue in the grammar. However, it is essentially the `<basic-var-type>`
-/// without the "var" token preceding it:
+/// Has no direct analogue in the grammar. However, it is essentially the
+/// `<basic-var-type>` without the "var" token preceding it:
 ///
 /// ```bnf
 /// <basic-var-type> ::= "var" <basic-par-type>
@@ -197,6 +207,7 @@ where
 	.parse_next(input)
 }
 
+/// Parse a parameter declaration item.
 fn parameter_item<Identifier>(
 	input: &mut Stream<'_, '_, Identifier>,
 ) -> Result<(String, Literal<Identifier>)>
@@ -537,7 +548,7 @@ where
 		.parse_next(input)
 }
 
-/// Parse a variable model item.
+/// Parse a variable declaration item.
 fn variable<Identifier>(
 	input: &mut Stream<'_, '_, Identifier>,
 ) -> Result<(Identifier, Variable<Identifier>, bool)>
@@ -583,15 +594,15 @@ mod tests {
 
 	use rangelist::RangeList;
 	use ustr::Ustr;
-	use winnow::{error::ParserError, Parser, Stateful};
+	use winnow::{Parser, Stateful, error::ParserError};
 
 	use crate::{
-		fzn::{
-			array_item, constraint, parameter_item, predicate_item, solve_objective, variable,
-			ParseState, Stream,
-		},
 		Annotation, AnnotationArgument, AnnotationCall, AnnotationLiteral, Argument, Array,
 		Constraint, FlatZinc, FznParseError, Literal, Method, SolveObjective, Type, Variable,
+		fzn::{
+			ParseState, Stream, array_item, constraint, parameter_item, predicate_item,
+			solve_objective, variable,
+		},
 	};
 
 	#[test]

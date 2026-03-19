@@ -7,15 +7,15 @@ use std::{
 
 use rangelist::RangeList;
 use winnow::{
+	Parser, Result,
 	ascii::{digit1, hex_digit1, multispace1, oct_digit1},
 	combinator::{alt, delimited, opt, separated, separated_pair, trace},
 	error::{ContextError, FromExternalError},
 	stream::AsChar,
 	token::{one_of, take_till, take_until, take_while},
-	Parser, Result,
 };
 
-use crate::{fzn::Stream, FznParseError, Literal};
+use crate::{FznParseError, Literal, fzn::Stream};
 
 /// Parse a `/* ... */` block comment.
 fn block_comment<I>(input: &mut Stream<'_, '_, I>) -> Result<()>
@@ -37,8 +37,8 @@ pub(super) fn boolean<I: Debug>(input: &mut Stream<'_, '_, I>) -> Result<bool> {
 	alt(("true".map(|_| true), "false".map(|_| false))).parse_next(input)
 }
 
-/// Parses a list of elements seperated by a comma, and delimited by `open_token` and
-/// `close_token`.
+/// Parses a list of elements seperated by a comma, and delimited by
+/// `open_token` and `close_token`.
 pub(super) fn delimited_list<'source, 'state, T, I>(
 	open_token: &'static str,
 	element_parser: impl Parser<Stream<'source, 'state, I>, T, ContextError>,
@@ -212,9 +212,10 @@ where
 	Identifier: Clone + Debug + FromStr,
 	<Identifier as FromStr>::Err: Display,
 {
-	// This can be optimized if it turns out to be a bottleneck. At the moment, to parse a literal,
-	// it will first attempt to parse a float and, if that fails, parse an integer. We can be more
-	// clever about that by peeking at the next character to determine what is being parsed.
+	// This can be optimized if it turns out to be a bottleneck. At the moment, to
+	// parse a literal, it will first attempt to parse a float and, if that fails,
+	// parse an integer. We can be more clever about that by peeking at the next
+	// character to determine what is being parsed.
 
 	let parsed_literal = alt((
 		set(int).map(Literal::IntSet),
@@ -255,7 +256,9 @@ where
 ///
 /// Works with either interval sets or sparse sets.
 ///
-/// The grammar is modified from the documentation. Here we abstract the element type.
+/// The grammar is modified from the documentation. Here we abstract the element
+/// type.
+///
 /// ```bnf
 /// <set-literal> ::= <set-term> [ "union" <set-term> ] ...
 ///
@@ -306,8 +309,8 @@ mod tests {
 	use winnow::{Parser, Stateful};
 
 	use crate::{
-		fzn::{literal, tests::check_parser, ParseState},
 		Literal,
+		fzn::{ParseState, literal, tests::check_parser},
 	};
 
 	#[test]

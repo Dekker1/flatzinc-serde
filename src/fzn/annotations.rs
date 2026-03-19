@@ -6,20 +6,23 @@ use std::{
 };
 
 use winnow::{
-	combinator::{alt, delimited, opt, preceded, repeat, separated},
 	Parser, Result,
+	combinator::{alt, delimited, opt, preceded, repeat, separated},
 };
 
 use crate::{
-	fzn::{identifier, identifier_raw, literal, token, Stream},
 	Annotation, AnnotationArgument, AnnotationCall, AnnotationLiteral, FznParseError, Literal,
+	fzn::{Stream, identifier, identifier_raw, literal, token},
 };
 
 /// Semantic flags projected out of special FlatZinc annotations.
 #[derive(Default)]
 pub(crate) struct AnnotationFlags {
+	/// Whether the variable is defined by a constraint
 	pub(crate) defined: bool,
+	/// Whether the variable was additionally introduced by the compiler.
 	pub(crate) introduced: bool,
+	/// Whether the variable is an output variable.
 	pub(crate) output: bool,
 }
 
@@ -77,8 +80,8 @@ where
 
 /// Parses an annotation with arguments.
 ///
-/// This does not have an analogue in the FZN grammar. It is only used to parse annotation
-/// arguments that are nested annotation calls.
+/// This does not have an analogue in the FZN grammar. It is only used to parse
+/// annotation arguments that are nested annotation calls.
 fn annotation_call<Identifier>(
 	input: &mut Stream<'_, '_, Identifier>,
 ) -> Result<AnnotationCall<Identifier>>
@@ -120,6 +123,8 @@ where
 	.parse_next(input)
 }
 
+/// Parses the annotations for a constraint, returning optionally the identifier
+/// of the defined variable and a list of annotations.
 pub(super) fn constraint_annotations<Identifier>(
 	input: &mut Stream<'_, '_, Identifier>,
 ) -> Result<(Option<Identifier>, Vec<Annotation<Identifier>>)>
@@ -167,6 +172,7 @@ where
 		.parse_next(input)
 }
 
+/// Parses a general list of annotations.
 pub(super) fn general_annotations<Identifier>(
 	input: &mut Stream<'_, '_, Identifier>,
 ) -> Result<Vec<Annotation<Identifier>>>
@@ -199,6 +205,8 @@ where
 		.parse_next(input)
 }
 
+/// Parses the annotations for a variable declaration, returning flags for
+/// standard annotations and a list of other annotations.
 pub(super) fn variable_annotations<Identifier>(
 	input: &mut Stream<'_, '_, Identifier>,
 ) -> Result<(AnnotationFlags, Vec<Annotation<Identifier>>)>
@@ -257,8 +265,8 @@ mod tests {
 	use rangelist::RangeList;
 
 	use crate::{
-		fzn::{general_annotations, tests::check_parser},
 		Annotation, AnnotationArgument, AnnotationCall, AnnotationLiteral, Literal,
+		fzn::{general_annotations, tests::check_parser},
 	};
 
 	#[test]

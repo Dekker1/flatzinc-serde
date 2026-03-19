@@ -4,9 +4,9 @@
 use std::{fmt, marker::PhantomData};
 
 use serde::{
+	Deserialize, Deserializer, Serialize, Serializer,
 	de::{MapAccess, Visitor},
 	ser::SerializeMap,
-	Deserialize, Deserializer, Serialize, Serializer,
 };
 
 use crate::{Annotation, Literal, Method, RangeList, SolveObjective, Type, Variable};
@@ -58,7 +58,8 @@ pub(crate) enum VariableDomain {
 	/// Integer domain payload serialized as a JSON array of inclusive bounds.
 	#[serde(deserialize_with = "deserialize_set", serialize_with = "serialize_set")]
 	Int(RangeList<i64>),
-	/// Floating-point domain payload serialized as a JSON array of inclusive bounds.
+	/// Floating-point domain payload serialized as a JSON array of inclusive
+	/// bounds.
 	#[serde(deserialize_with = "deserialize_set", serialize_with = "serialize_set")]
 	Float(RangeList<f64>),
 }
@@ -160,6 +161,7 @@ where
 	deserializer.deserialize_map(KeyValueObjectVisitor(PhantomData))
 }
 
+/// Deserialize a raw `(start, end)` range list into a [`RangeList`].
 pub(crate) fn deserialize_set<
 	'de,
 	D: Deserializer<'de>,

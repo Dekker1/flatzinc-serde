@@ -671,6 +671,7 @@ impl<Identifier: Display> Display for SolveObjective<Identifier> {
 }
 
 impl Type {
+	/// Return the canonical FlatZinc type name without any domain restriction.
 	fn base_name(&self) -> &'static str {
 		match self {
 			Type::Bool => "bool",

@@ -1,0 +1,75 @@
+name: Rust
+
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+
+jobs:
+  test:
+    name: Test (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: no-default-features
+            args: "--no-default-features"
+          - name: default-features (serde)
+            args: ""
+          - name: fzn
+            args: "--no-default-features --features fzn"
+          - name: all-features
+            args: "--all-features"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Cache cargo artifacts
+        uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build ${{ matrix.args }}
+      - name: Test
+        run: cargo test ${{ matrix.args }}
+
+  clippy:
+    name: Clippy (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: no-default-features
+            args: "--no-default-features"
+          - name: default-features (serde)
+            args: ""
+          - name: fzn
+            args: "--no-default-features --features fzn"
+          - name: all-features
+            args: "--all-features"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy
+      - name: Cache cargo artifacts
+        uses: Swatinem/rust-cache@v2
+      - name: Run clippy
+        run: cargo clippy --all-targets ${{ matrix.args }} -- -D warnings
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - name: Run rustfmt
+        run: cargo fmt --all --check
